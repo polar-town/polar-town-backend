@@ -50,4 +50,25 @@ const handleLogin = async (req, res, next) => {
   }
 };
 
-module.exports = { handleLogin };
+const handleLogout = async (req, res, next) => {
+  const cookies = req.cookies;
+  const refreshToken = cookies.jwt;
+
+  if (!refreshToken) return res.send({ result: "ok" });
+
+  try {
+    const user = await User.findOne({ refreshToken });
+
+    if (user) {
+      await user.updateOne({ refreshToken: null });
+    }
+
+    res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
+    res.send({ result: "ok" });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+module.exports = { handleLogin, handleLogout };
