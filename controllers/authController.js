@@ -80,7 +80,6 @@ const handleLogout = async (req, res, next) => {
 
 const handleRefreshToken = async (req, res, next) => {
   const cookies = req.cookies;
-  console.log(cookies);
   const refreshToken = cookies.jwt;
 
   if (!refreshToken) return next(createError(401, "Unauthorized"));
