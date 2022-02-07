@@ -1,9 +1,9 @@
 const express = require("express");
-const { handleTrash, emptyTrash } = require("../controllers/mailController");
+const { postTrash, deleteTrash } = require("../controllers/mailController");
 
 const router = express.Router();
 
-router.post("/:id/mails/trash", handleTrash);
-router.delete("/:id/mails/trash", emptyTrash);
+router.post("/:id/mails/trash", postTrash);
+router.delete("/:id/mails/trash", deleteTrash);
 
 module.exports = router;
