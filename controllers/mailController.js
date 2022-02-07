@@ -1,9 +1,9 @@
-const createError = require("http-errors");
 const axios = require("axios");
 
-const postTrash = async (req, res, next) => {
+const moveToTrash = async (req, res, next) => {
   const { gapiauthorization } = req.headers;
   const { mailId } = req.body;
+  const headers = { Authorization: gapiauthorization };
 
   try {
     await axios.post(
@@ -13,9 +13,7 @@ const postTrash = async (req, res, next) => {
         addLabelIds: ["TRASH"],
         removeLabelIds: ["CATEGORY_PROMOTIONS", "SPAM"],
       },
-      {
-        headers: { Authorization: gapiauthorization },
-      }
+      headers
     );
 
     res.send({ result: "ok" });
@@ -28,6 +26,7 @@ const postTrash = async (req, res, next) => {
 const deleteTrash = async (req, res, next) => {
   const { gapiauthorization } = req.headers;
   const { mailId } = req.body;
+  const headers = { Authorization: gapiauthorization };
 
   try {
     await axios.post(
@@ -35,9 +34,7 @@ const deleteTrash = async (req, res, next) => {
       {
         ids: mailId,
       },
-      {
-        headers: { Authorization: gapiauthorization },
-      }
+      headers
     );
 
     res.send({ result: "ok" });
@@ -47,4 +44,7 @@ const deleteTrash = async (req, res, next) => {
   }
 };
 
-module.exports = { postTrash, deleteTrash };
+module.exports = {
+  moveToTrash,
+  deleteTrash,
+};
