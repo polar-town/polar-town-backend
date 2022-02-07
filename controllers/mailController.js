@@ -7,7 +7,7 @@ const postTrash = async (req, res, next) => {
 
   try {
     await axios.post(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify`,
+      "https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify",
       {
         ids: mailId,
         addLabelIds: ["TRASH"],
@@ -29,22 +29,22 @@ const deleteTrash = async (req, res, next) => {
   const { gapiauthorization } = req.headers;
   const { mailId } = req.body;
 
-  mailId.forEach(async (id) => {
-    try {
-      await axios.post(
-        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}/trash`,
-        null,
-        {
-          headers: { Authorization: gapiauthorization },
-        }
-      );
-    } catch (error) {
-      console.error(error);
-      next(error);
-    }
-  });
+  try {
+    await axios.post(
+      "https://gmail.googleapis.com/gmail/v1/users/me/messages/batchDelete",
+      {
+        ids: mailId,
+      },
+      {
+        headers: { Authorization: gapiauthorization },
+      }
+    );
 
-  res.send({ result: "ok" });
+    res.send({ result: "ok" });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 };
 
 module.exports = { postTrash, deleteTrash };
