@@ -18,19 +18,13 @@ const handleLogin = async (req, res, next) => {
     }
 
     const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          email: user.email,
-        },
-      },
+      { email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: Number(process.env.ACCESS_TOKEN_MAX_AGE) }
     );
 
     const refreshToken = jwt.sign(
-      {
-        email: user.email,
-      },
+      { email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) }
     );
@@ -61,7 +55,7 @@ const handleLogout = async (req, res, next) => {
   const cookies = req.cookies;
   const refreshToken = cookies.jwt;
 
-  if (!refreshToken) return res.send({ result: "ok" });
+  if (!refreshToken) return res.json({ result: "ok" });
 
   try {
     const user = await User.findOne({ refreshToken });
@@ -70,8 +64,12 @@ const handleLogout = async (req, res, next) => {
       await user.updateOne({ refreshToken: null });
     }
 
-    res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true });
-    res.send({ result: "ok" });
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+    });
+    res.json({ result: "ok" });
   } catch (error) {
     console.error(error);
     next(error);
@@ -95,16 +93,12 @@ const handleRefreshToken = async (req, res, next) => {
         if (error || decoded.email !== user.email)
           return next(createError(403, "Forbidden"));
         const accessToken = jwt.sign(
-          {
-            UserInfo: {
-              email: decoded.email,
-            },
-          },
+          { email: decoded.email },
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) }
         );
 
-        res.json({ accessToken });
+        res.json({ accessToken, username: user.name, email: user.email });
       }
     );
   } catch (error) {
@@ -113,4 +107,8 @@ const handleRefreshToken = async (req, res, next) => {
   }
 };
 
-module.exports = { handleLogin, handleLogout, handleRefreshToken };
+module.exports = {
+  handleLogin,
+  handleLogout,
+  handleRefreshToken,
+};
