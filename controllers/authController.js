@@ -52,28 +52,27 @@ const handleLogin = async (req, res, next) => {
 };
 
 const handleLogout = async (req, res, next) => {
+  const { email } = req.body;
+
+  try {
+    await User.findOneAndUpdate({ email }, { $set: { refreshToken: null } });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+
   const cookies = req.cookies;
   const refreshToken = cookies.jwt;
 
   if (!refreshToken) return res.json({ result: "ok" });
 
-  try {
-    const user = await User.findOne({ refreshToken });
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+  });
 
-    if (user) {
-      await user.updateOne({ refreshToken: null });
-    }
-
-    res.clearCookie("jwt", {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-    });
-    res.json({ result: "ok" });
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
+  res.json({ result: "ok" });
 };
 
 const handleRefreshToken = async (req, res, next) => {

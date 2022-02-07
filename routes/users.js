@@ -1,12 +1,11 @@
 const express = require("express");
-const { moveToTrash, deleteTrash } = require("../controllers/mailController");
-
-const router = express.Router();
 const {
   getMailList,
   moveToTrash,
   deleteTrash,
-} = require("../controller/mailController");
+} = require("../controllers/mailController");
+
+const router = express.Router();
 
 router.get("/:id/mails/:inBoxId", getMailList);
 
