@@ -9,11 +9,6 @@
     "ecmaVersion": "latest"
   },
   "rules": {
-    "no-param-reassign": "off",
-    "import/prefer-default-export": "off",
-    "no-promise-executor-return": "off",
-    "import/order": "off",
-    "no-use-before-define": "off",
     "no-unused-vars": "warn"
   }
 }
