@@ -9,11 +9,14 @@
     "ecmaVersion": "latest"
   },
   "rules": {
+<<<<<<< HEAD
     "no-param-reassign": "off",
     "import/prefer-default-export": "off",
     "no-promise-executor-return": "off",
     "import/order": "off",
     "no-use-before-define": "off",
+=======
+>>>>>>> 093bd6d (refactor: changed gapi method from trash to batch modify)
     "no-unused-vars": "warn"
   }
 }
