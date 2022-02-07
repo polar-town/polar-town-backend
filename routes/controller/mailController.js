@@ -7,7 +7,7 @@ const getMailList = async (req, res, next) => {
 
   try {
     const headers = { authorization: gapitAuthorization };
-    const mailListUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=${inBoxId}&maxResults=1`;
+    const mailListUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=${inBoxId}&maxResults=10`;
     const response = await axios.get(mailListUrl, { headers });
     const nextPageToken = response.data.nextPageToken;
 
@@ -21,7 +21,7 @@ const getMailList = async (req, res, next) => {
       }),
     );
 
-    const incodedMailList = mailList.map((mail) => {
+    const decodedMailList = mailList.map((mail) => {
       let from, date, subject;
 
       mail.payload.headers.forEach((header) => {
@@ -30,7 +30,7 @@ const getMailList = async (req, res, next) => {
         header.name === "Subject" && (subject = header.value);
       });
 
-      const incodedMail = {
+      const decodedMail = {
         id: mail.id,
         from,
         date,
@@ -39,11 +39,11 @@ const getMailList = async (req, res, next) => {
         content: getMailBody(mail.payload),
       };
 
-      return incodedMail;
+      return decodedMail;
     });
 
     const result = {
-      result: incodedMailList,
+      result: decodedMailList,
       nextPageToken,
     };
 
