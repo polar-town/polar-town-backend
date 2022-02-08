@@ -40,6 +40,7 @@ const handleLogin = async (req, res, next) => {
 
     res.json({
       result: {
+        id: user._id,
         accessToken,
         username: user.name,
         email: user.email,
