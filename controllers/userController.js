@@ -106,9 +106,29 @@ const toggleItem = async (req, res, next) => {
   }
 };
 
+const changeItemLocation = async (req, res, next) => {
+  const { id, itemId } = req.params;
+  const { newLocation } = req.body;
+
+  try {
+    const item = await User.findByIdAndUpdate(
+      id,
+      { $set: { "outItemBox.$[item]": newLocation } },
+      { arrayFilters: [{ "item._id": itemId }] },
+      { new: true }
+    );
+
+    res.json(item);
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
 module.exports = {
   getUserInfo,
   getGuestBook,
   addMessage,
   toggleItem,
+  changeItemLocation,
 };
