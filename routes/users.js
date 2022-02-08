@@ -8,6 +8,7 @@ const {
   getUserInfo,
   getGuestBook,
   addMessage,
+  toggleItem,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -23,5 +24,7 @@ router.get("/:id", getUserInfo);
 router.get("/:id/guestBook", getGuestBook);
 
 router.post("/:id/guestBook", addMessage);
+
+router.put("/:id/items/:itemId", toggleItem);
 
 module.exports = router;
