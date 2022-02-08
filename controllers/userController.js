@@ -6,10 +6,10 @@ const getUserInfo = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(id).exec();
 
     res.json({
-      user,
+      result: user,
     });
   } catch (err) {
     console.error(err);
@@ -21,9 +21,10 @@ const getGuestBook = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const userGuestBook = await User.findById(id).guestBook.exec();
+    const user = await User.findById(id).exec();
+    const userGuestBook = user.guestBook;
 
-    res.json(userGuestBook);
+    res.json({ result: userGuestBook });
   } catch (err) {
     console.error(err);
     next(err);
@@ -35,7 +36,7 @@ const addMessage = async (req, res, next) => {
   const { message } = req.body;
   const refershToken = req.cookies.jwt;
   const isoDateTime = new Date().toISOString();
-  let currentUserEmail;
+  let userEmail;
 
   try {
     jwt.verify(
@@ -46,24 +47,24 @@ const addMessage = async (req, res, next) => {
           return createError(403, "Forbidden");
         }
 
-        currentUserEmail = decoded.email;
+        userEmail = decoded.email;
       }
     );
 
-    const currentUserName = await User.findOne({ email: currentUserEmail })
-      .name;
+    const user = await User.findOne({ email: userEmail }).exec();
+    const userName = user.name;
 
     const newMessage = await User.findByIdAndUpdate(
       id,
       {
         $push: {
-          guestBook: { name: currentUserName, message, date: isoDateTime },
+          guestBook: { name: userName, message, date: isoDateTime },
         },
       },
       { new: true }
     );
 
-    res.json(newMessage);
+    res.json({ result: newMessage });
   } catch (err) {
     console.error(err);
     next(err);
@@ -93,12 +94,14 @@ const toggleItem = async (req, res, next) => {
       },
     });
 
-    const allItems = User.findById(id);
+    const user = User.findById(id);
 
     res.json({
-      inbox: allItems.inItemBox,
-      outBox: allItems.outItemBox,
-      presentBox: allItems.presentBox,
+      result: {
+        inbox: user.inItemBox,
+        outBox: user.outItemBox,
+        presentBox: user.presentBox,
+      },
     });
   } catch (err) {
     console.error(err);
@@ -113,12 +116,12 @@ const changeItemLocation = async (req, res, next) => {
   try {
     const item = await User.findByIdAndUpdate(
       id,
-      { $set: { "outItemBox.$[item]": newLocation } },
+      { $set: { "outItemBox.$[item].location": newLocation } },
       { arrayFilters: [{ "item._id": itemId }] },
       { new: true }
     );
 
-    res.json(item);
+    res.json({ result: item });
   } catch (err) {
     console.error(err);
     next(err);
