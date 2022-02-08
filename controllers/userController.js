@@ -24,7 +24,7 @@ const getGuestBook = async (req, res, next) => {
     const user = await User.findById(id).exec();
     const userGuestBook = user.guestBook;
 
-    res.json({ result: userGuestBook });
+    res.json({ result: { guestBook: userGuestBook } });
   } catch (err) {
     console.error(err);
     next(err);
@@ -79,7 +79,7 @@ const toggleItem = async (req, res, next) => {
     const item = await User.findByIdAndUpdate(
       id,
       {
-        $pullAll: { [from]: itemId },
+        $pull: { [from]: itemId },
       },
       { new: true }
     );
