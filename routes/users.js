@@ -4,7 +4,7 @@ const {
   moveToTrash,
   deleteTrash,
 } = require("../controllers/mailController");
-const { getUserInfo } = require("../controllers/userController");
+const { getUserInfo, getGuestBook } = require("../controllers/userController");
 
 const router = express.Router();
 
@@ -15,5 +15,7 @@ router.post("/:id/mails/trash", moveToTrash);
 router.delete("/:id/mails/trash", deleteTrash);
 
 router.get("/:id", getUserInfo);
+
+router.get("/:id/guestBook", getGuestBook);
 
 module.exports = router;
