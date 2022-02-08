@@ -70,8 +70,45 @@ const addMessage = async (req, res, next) => {
   }
 };
 
+const toggleItem = async (req, res, next) => {
+  const { id, itemId } = req.params;
+  const { from, to } = req.body;
+
+  try {
+    const item = await User.findByIdAndUpdate(
+      id,
+      {
+        $pullAll: { [from]: itemId },
+      },
+      { new: true }
+    );
+
+    await User.findByIdAndUpdate(id, {
+      $push: {
+        [to]: {
+          purchasedBy: item.purchasedBy,
+          name: item.name,
+          location: [0, 0],
+        },
+      },
+    });
+
+    const allItems = User.findById(id);
+
+    res.json({
+      inbox: allItems.inItemBox,
+      outBox: allItems.outItemBox,
+      presentBox: allItems.presentBox,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
 module.exports = {
   getUserInfo,
   getGuestBook,
   addMessage,
+  toggleItem,
 };
