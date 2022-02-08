@@ -8,7 +8,6 @@ const guestBookSchema = new mongoose.Schema({
   },
   date: {
     type: String,
-    default: Date.now,
   },
   isChecked: {
     type: Boolean,
