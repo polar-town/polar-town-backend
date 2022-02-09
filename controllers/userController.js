@@ -57,22 +57,23 @@ const addPendingFriendList = async (req, res, next) => {
   const { email } = req.body;
 
   try {
-    const friend = await User.findOne({ email }).exec();
-
-    await User.findByIdAndUpdate(id, {
-      $push: {
-        pendingFriendList: {
-          userId: friend._id,
-          isChecked: false,
+    await User.findOneAndUpdate(
+      { email },
+      {
+        $push: {
+          pendingFriendList: {
+            userId: id,
+            isChecked: false,
+          },
         },
       },
-    });
+    ).setOptions({ runValidators: true });
 
     res.status(201).json({
       result: "ok",
     });
   } catch (err) {
-    console.error(err);
+    console.log(err);
     next(err);
   }
 };
@@ -201,9 +202,8 @@ const getGuestBook = async (req, res, next) => {
 
   try {
     const user = await User.findById(id).exec();
-    const userGuestBook = user.guestBook;
 
-    res.json({ result: { guestBook: userGuestBook } });
+    res.json({ result: { guestBook: user.guestBook } });
   } catch (err) {
     console.error(err);
     next(err);
@@ -231,13 +231,13 @@ const addMessage = async (req, res, next) => {
     );
 
     const user = await User.findOne({ email: userEmail }).exec();
-    const userName = user.name;
+    const name = user.name;
 
     await User.findByIdAndUpdate(
       id,
       {
         $push: {
-          guestBook: { name: userName, message, date: isoDateTime },
+          guestBook: { name, message, date: isoDateTime },
         },
       },
       { new: true },
@@ -246,7 +246,7 @@ const addMessage = async (req, res, next) => {
     res.json({
       result: {
         newMessage: {
-          name: userName,
+          name,
           message,
           date: isoDateTime,
         },
@@ -258,7 +258,7 @@ const addMessage = async (req, res, next) => {
   }
 };
 
-const toggleItem = async (req, res, next) => {
+const changeItemStorage = async (req, res, next) => {
   const { id, itemId } = req.params;
   const { from, to } = req.body;
   const targetItem = [];
@@ -321,7 +321,7 @@ module.exports = {
   getUserInfo,
   getGuestBook,
   addMessage,
-  toggleItem,
+  changeItemStorage,
   changeItemLocation,
   getInItemBox,
   addInItem,

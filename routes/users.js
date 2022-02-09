@@ -9,7 +9,7 @@ const {
   getUserInfo,
   getGuestBook,
   addMessage,
-  toggleItem,
+  changeItemStorage,
   changeItemLocation,
   getInItemBox,
   addInItem,
@@ -35,7 +35,7 @@ router.get("/:id/guestBook", getGuestBook);
 
 router.post("/:id/guestBook", addMessage);
 
-router.put("/:id/items/:itemId", toggleItem);
+router.put("/:id/items/:itemId", changeItemStorage);
 
 router.put("/:id/items/:itemId/location", changeItemLocation);
 
