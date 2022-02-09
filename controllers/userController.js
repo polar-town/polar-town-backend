@@ -140,7 +140,7 @@ const changeItemLocation = async (req, res, next) => {
 
 const acceptFriendRequest = async (req, res, next) => {
   const { id } = req.params;
-  const { email } = req.body;
+  const { email, isAlarm } = req.body;
   const newPendingFriendList = [];
   const newFriendList = [];
 
@@ -150,9 +150,14 @@ const acceptFriendRequest = async (req, res, next) => {
 
     user.pendingFriendList.forEach((friend) => {
       if (String(friend.userId) === String(pendingFriend._id)) {
-        newFriendList.push({ userId: pendingFriend._id });
+        newFriendList.push({ userId: pendingFriend._id, isChecked: true });
       } else {
-        newPendingFriendList.push({ userId: friend.userId });
+        if (isAlarm) {
+          newPendingFriendList.push({ userId: friend.userId });
+        }
+        if (!isAlarm) {
+          newPendingFriendList.push({ userId: friend.userId, isChecked: true });
+        }
       }
     });
 
