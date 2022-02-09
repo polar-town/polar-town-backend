@@ -5,6 +5,7 @@ const {
   deleteTrash,
 } = require("../controllers/mailController");
 const {
+  getSearchResult,
   getUserInfo,
   getGuestBook,
   addMessage,
@@ -13,6 +14,8 @@ const {
 } = require("../controllers/userController");
 
 const router = express.Router();
+
+router.get("/", getSearchResult);
 
 router.get("/:id", getUserInfo);
 
