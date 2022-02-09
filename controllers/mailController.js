@@ -18,7 +18,7 @@ const getMailList = async (req, res, next) => {
         const mail = await axios.get(getEachMailUrl, { headers });
 
         return mail.data;
-      })
+      }),
     );
 
     const decodedMailList = mailList.map((mail) => {
@@ -67,7 +67,7 @@ const moveToTrash = async (req, res, next) => {
         addLabelIds: ["TRASH"],
         removeLabelIds: ["CATEGORY_PROMOTIONS", "SPAM"],
       },
-      headers
+      headers,
     );
 
     res.send({ result: "ok" });
@@ -88,7 +88,7 @@ const deleteTrash = async (req, res, next) => {
       {
         ids: mailId,
       },
-      headers
+      headers,
     );
 
     res.send({ result: "ok" });
