@@ -98,14 +98,9 @@ const addInItem = async (req, res, next) => {
   const { name, price } = req.body;
 
   try {
-    const user = await User.findById(id).exec();
-
     if (name === "ice") {
       await User.findByIdAndUpdate(id, {
-        $set: {
-          iceCount: (user.iceCount += 1),
-          cokeCount: (user.cokeCount -= price),
-        },
+        $inc: { iceCount: 1, cokeCount: -price },
       });
 
       return res.json({
@@ -114,12 +109,10 @@ const addInItem = async (req, res, next) => {
     }
 
     await User.findByIdAndUpdate(id, {
-      $set: {
-        cokeCount: (user.cokeCount -= price),
-      },
+      $inc: { cokeCount: -price },
       $push: {
         inItemBox: {
-          purchasedBy: user.email,
+          purchasedBy: "me",
           name,
           location: [0, 0],
         },
@@ -158,9 +151,7 @@ const addPresentItem = async (req, res, next) => {
     const user = await User.findById(id).exec();
 
     await User.findByIdAndUpdate(id, {
-      $set: {
-        cokeCount: (user.cokeCount -= price),
-      },
+      $inc: { cokeCount: -price },
     });
 
     await User.findByIdAndUpdate(presentTo, {
