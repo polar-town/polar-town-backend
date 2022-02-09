@@ -15,6 +15,10 @@ const {
   addInItem,
   getPresentBox,
   addPresentItem,
+  getFriendList,
+  deleteFriend,
+  getPendingFriendList,
+  addPendingFriendList,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -42,5 +46,13 @@ router.post("/:id/items", addInItem);
 router.get("/:id/items/present", getPresentBox);
 
 router.post("/:id/items/present", addPresentItem);
+
+router.get("/:id/friends", getFriendList);
+
+router.delete("/:id/friends", deleteFriend);
+
+router.get("/:id/friends/pending", getPendingFriendList);
+
+router.post("/:id/friends/pending", addPendingFriendList);
 
 module.exports = router;

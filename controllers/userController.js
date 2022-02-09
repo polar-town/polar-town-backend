@@ -2,6 +2,81 @@ const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const User = require("../models/User");
 
+const getFriendList = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    res.json({
+      result: user.friendList,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const deleteFriend = async (req, res, next) => {
+  const { id } = req.params;
+  const { email } = req.body;
+
+  try {
+    const deleteTarget = await User.findOne({ email }).exec();
+
+    await User.findByIdAndUpdate(id, {
+      $pull: { friendList: { userId: deleteTarget._id } },
+    });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const getPendingFriendList = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    res.json({
+      result: user.pendingFriendList,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const addPendingFriendList = async (req, res, next) => {
+  const { id } = req.params;
+  const { email } = req.body;
+
+  try {
+    const friend = await User.findOne({ email }).exec();
+
+    await User.findByIdAndUpdate(id, {
+      $push: {
+        pendingFriendList: {
+          userId: friend._id,
+          isChecked: false,
+        },
+      },
+    });
+
+    res.status(201).json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
 const getInItemBox = async (req, res, next) => {
   const { id } = req.params;
 
@@ -97,7 +172,7 @@ const addPresentItem = async (req, res, next) => {
       },
     });
 
-    res.json({
+    res.status(201).json({
       result: "ok",
     });
   } catch (err) {
@@ -252,4 +327,8 @@ module.exports = {
   addInItem,
   getPresentBox,
   addPresentItem,
+  getFriendList,
+  deleteFriend,
+  getPendingFriendList,
+  addPendingFriendList,
 };
