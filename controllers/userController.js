@@ -138,10 +138,43 @@ const changeItemLocation = async (req, res, next) => {
   }
 };
 
+const acceptFriendRequest = async (req, res, next) => {
+  const { id } = req.params;
+  const { email } = req.body;
+  const newPendingFriendList = [];
+  const newFriendList = [];
+
+  try {
+    const user = await User.findById(id);
+    const pendingFriend = await User.findOne({ email });
+
+    user.pendingFriendList.forEach((friend) => {
+      if (String(friend.userId) === String(pendingFriend._id)) {
+        newFriendList.push({ userId: pendingFriend._id });
+      } else {
+        newPendingFriendList.push({ userId: friend.userId });
+      }
+    });
+
+    user.pendingFriendList = newPendingFriendList;
+    user.friendList.push(...newFriendList);
+
+    await user.save();
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
 module.exports = {
   getUserInfo,
   getGuestBook,
   addMessage,
   toggleItem,
   changeItemLocation,
+  acceptFriendRequest,
 };

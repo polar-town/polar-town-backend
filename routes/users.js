@@ -10,6 +10,7 @@ const {
   addMessage,
   toggleItem,
   changeItemLocation,
+  acceptFriendRequest,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -29,5 +30,7 @@ router.post("/:id/guestBook", addMessage);
 router.put("/:id/items/:itemId", toggleItem);
 
 router.put("/:id/items/:itemId/location", changeItemLocation);
+
+router.post("/:id/friends", acceptFriendRequest);
 
 module.exports = router;
