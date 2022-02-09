@@ -54,7 +54,7 @@ const addMessage = async (req, res, next) => {
     const user = await User.findOne({ email: userEmail }).exec();
     const userName = user.name;
 
-    const newMessage = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       id,
       {
         $push: {
@@ -64,7 +64,15 @@ const addMessage = async (req, res, next) => {
       { new: true }
     );
 
-    res.json({ result: newMessage });
+    res.json({
+      result: {
+        newMessage: {
+          name: userName,
+          message,
+          date: isoDateTime,
+        },
+      },
+    });
   } catch (err) {
     console.error(err);
     next(err);
@@ -74,33 +82,31 @@ const addMessage = async (req, res, next) => {
 const toggleItem = async (req, res, next) => {
   const { id, itemId } = req.params;
   const { from, to } = req.body;
+  const targetItem = [];
+  const restItems = [];
 
   try {
-    const item = await User.findByIdAndUpdate(
-      id,
-      {
-        $pull: { [from]: itemId },
-      },
-      { new: true }
-    );
+    const user = await User.findByIdAndUpdate(id).exec();
 
-    await User.findByIdAndUpdate(id, {
-      $push: {
-        [to]: {
-          purchasedBy: item.purchasedBy,
-          name: item.name,
-          location: [0, 0],
-        },
-      },
+    user[from].forEach((item) => {
+      if (item._id.toString() === itemId) {
+        item.location = [100, 100];
+        targetItem.push(item);
+      } else {
+        restItems.push(item);
+      }
     });
 
-    const user = User.findById(id);
+    user[from] = restItems;
+    user[to].push(...targetItem);
+
+    const result = await user.save();
 
     res.json({
       result: {
-        inbox: user.inItemBox,
-        outBox: user.outItemBox,
-        presentBox: user.presentBox,
+        inbox: result.inItemBox,
+        outBox: result.outItemBox,
+        presentBox: result.presentBox,
       },
     });
   } catch (err) {
@@ -114,14 +120,18 @@ const changeItemLocation = async (req, res, next) => {
   const { newLocation } = req.body;
 
   try {
-    const item = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       id,
       { $set: { "outItemBox.$[item].location": newLocation } },
-      { arrayFilters: [{ "item._id": itemId }] },
-      { new: true }
+      { arrayFilters: [{ "item._id": itemId }] }
     );
 
-    res.json({ result: item });
+    res.json({
+      result: {
+        itemId,
+        location: newLocation,
+      },
+    });
   } catch (err) {
     console.error(err);
     next(err);
