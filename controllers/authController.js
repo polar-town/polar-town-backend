@@ -5,6 +5,8 @@ const User = require("../models/User");
 const handleLogin = async (req, res, next) => {
   const { name, email } = req.body;
 
+  console.log(req.cookies);
+
   try {
     let user = await User.findOne({ email });
 
