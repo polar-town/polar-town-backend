@@ -27,14 +27,6 @@ router.post("/:id/mails/trash", moveToTrash);
 
 router.delete("/:id/mails/trash", deleteTrash);
 
-router.get("/:id/items", getInItemBox);
-
-router.post("/:id/items", addInItem);
-
-router.get("/:id/items/present", getPresentBox);
-
-router.post(":id/items/present", addPresentItem);
-
 router.get("/:id/guestBook", getGuestBook);
 
 router.post("/:id/guestBook", addMessage);
@@ -42,5 +34,13 @@ router.post("/:id/guestBook", addMessage);
 router.put("/:id/items/:itemId", toggleItem);
 
 router.put("/:id/items/:itemId/location", changeItemLocation);
+
+router.get("/:id/items", getInItemBox);
+
+router.post("/:id/items", addInItem);
+
+router.get("/:id/items/present", getPresentBox);
+
+router.post("/:id/items/present", addPresentItem);
 
 module.exports = router;

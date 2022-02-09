@@ -2,13 +2,109 @@ const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const User = require("../models/User");
 
-const getInItemBox = async (req, res, next) => {};
+const getInItemBox = async (req, res, next) => {
+  const { id } = req.params;
 
-const addInItem = async (req, res, next) => {};
+  try {
+    const user = await User.findById(id).exec();
 
-const getPresentBox = async (req, res, next) => {};
+    res.json({
+      result: user.inItemBox,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
 
-const addPresentItem = async (req, res, next) => {};
+const addInItem = async (req, res, next) => {
+  const { id } = req.params;
+  const { name, price } = req.body;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    if (name === "ice") {
+      await User.findByIdAndUpdate(id, {
+        $set: {
+          iceCount: (user.iceCount += 1),
+          cokeCount: (user.cokeCount -= price),
+        },
+      });
+
+      return res.json({
+        result: "ok",
+      });
+    }
+
+    await User.findByIdAndUpdate(id, {
+      $set: {
+        cokeCount: (user.cokeCount -= price),
+      },
+      $push: {
+        inItemBox: {
+          purchasedBy: user.email,
+          name,
+          location: [0, 0],
+        },
+      },
+    });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const getPresentBox = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    res.json({
+      result: user.presentBox,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const addPresentItem = async (req, res, next) => {
+  const { id } = req.params;
+  const { presentTo, name, price } = req.body;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    await User.findByIdAndUpdate(id, {
+      $set: {
+        cokeCount: (user.cokeCount -= price),
+      },
+    });
+
+    await User.findByIdAndUpdate(presentTo, {
+      $push: {
+        presentBox: {
+          purchasedBy: user.email,
+          name,
+          location: [0, 0],
+        },
+      },
+    });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
 
 const getUserInfo = async (req, res, next) => {
   const { id } = req.params;

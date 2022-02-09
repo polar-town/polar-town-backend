@@ -28,8 +28,7 @@ const friendSchema = new mongoose.Schema({
 
 const itemSchema = new mongoose.Schema({
   purchasedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    type: String,
   },
   name: {
     type: String,
