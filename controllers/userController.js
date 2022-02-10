@@ -170,6 +170,22 @@ const addPresentItem = async (req, res, next) => {
   } catch (err) {
     console.error(err);
     next(err);
+
+const getSearchResult = async (req, res, next) => {
+  const { page = 1, size = 10, keyword = "" } = req.query;
+  const query = keyword && new RegExp(keyword);
+  const limit = parseInt(size);
+  const skip = (page - 1) * size;
+
+  try {
+    const users = await User.find(query ? { email: query } : {})
+      .limit(limit)
+      .skip(skip);
+
+    res.json({ result: { page, size, users } });
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };
 
@@ -309,6 +325,7 @@ const changeItemLocation = async (req, res, next) => {
 };
 
 module.exports = {
+  getSearchResult,
   getUserInfo,
   getGuestBook,
   addMessage,
