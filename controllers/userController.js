@@ -6,7 +6,7 @@ const getFriendList = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findById(id).exec();
+    const user = await User.findById(id).populate("friendList.userId").exec();
 
     res.json({
       result: user.friendList,
@@ -41,7 +41,9 @@ const getPendingFriendList = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findById(id).exec();
+    const user = await User.findById(id)
+      .populate("pendingFriendList.userId")
+      .exec();
 
     res.json({
       result: user.pendingFriendList,
@@ -66,7 +68,7 @@ const addPendingFriendList = async (req, res, next) => {
             isChecked: false,
           },
         },
-      },
+      }
     ).setOptions({ runValidators: true });
 
     res.status(201).json({
@@ -74,6 +76,26 @@ const addPendingFriendList = async (req, res, next) => {
     });
   } catch (err) {
     console.log(err);
+    next(err);
+  }
+};
+
+const deletePendingFriendList = async (req, res, next) => {
+  const { id } = req.params;
+  const { email } = req.body;
+
+  try {
+    const deleteTarget = await User.findOne({ email }).exec();
+
+    await User.findByIdAndUpdate(id, {
+      $pull: { pendingFriendList: { userId: deleteTarget._id } },
+    });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
     next(err);
   }
 };
@@ -170,6 +192,8 @@ const addPresentItem = async (req, res, next) => {
   } catch (err) {
     console.error(err);
     next(err);
+  }
+};
 
 const getSearchResult = async (req, res, next) => {
   const { page = 1, size = 10, keyword = "" } = req.query;
@@ -234,7 +258,7 @@ const addMessage = async (req, res, next) => {
         }
 
         userEmail = decoded.email;
-      },
+      }
     );
 
     const user = await User.findOne({ email: userEmail }).exec();
@@ -247,7 +271,7 @@ const addMessage = async (req, res, next) => {
           guestBook: { name, message, date: isoDateTime },
         },
       },
-      { new: true },
+      { new: true }
     );
 
     res.json({
@@ -309,7 +333,7 @@ const changeItemLocation = async (req, res, next) => {
     await User.findByIdAndUpdate(
       id,
       { $set: { "outItemBox.$[item].location": newLocation } },
-      { arrayFilters: [{ "item._id": itemId }] },
+      { arrayFilters: [{ "item._id": itemId }] }
     );
 
     res.json({
@@ -377,4 +401,5 @@ module.exports = {
   deleteFriend,
   getPendingFriendList,
   addPendingFriendList,
+  deletePendingFriendList,
 };
