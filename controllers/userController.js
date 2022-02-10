@@ -2,6 +2,175 @@ const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const User = require("../models/User");
 
+const getFriendList = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    res.json({
+      result: user.friendList,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const deleteFriend = async (req, res, next) => {
+  const { id } = req.params;
+  const { email } = req.body;
+
+  try {
+    const deleteTarget = await User.findOne({ email }).exec();
+
+    await User.findByIdAndUpdate(id, {
+      $pull: { friendList: { userId: deleteTarget._id } },
+    });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const getPendingFriendList = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    res.json({
+      result: user.pendingFriendList,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const addPendingFriendList = async (req, res, next) => {
+  const { id } = req.params;
+  const { email } = req.body;
+
+  try {
+    await User.findOneAndUpdate(
+      { email },
+      {
+        $push: {
+          pendingFriendList: {
+            userId: id,
+            isChecked: false,
+          },
+        },
+      },
+    ).setOptions({ runValidators: true });
+
+    res.status(201).json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+};
+
+const getInItemBox = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    res.json({
+      result: user.inItemBox,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const addInItem = async (req, res, next) => {
+  const { id } = req.params;
+  const { name, price } = req.body;
+
+  try {
+    if (name === "ice") {
+      await User.findByIdAndUpdate(id, {
+        $inc: { iceCount: 1, cokeCount: -price },
+      });
+
+      return res.json({
+        result: "ok",
+      });
+    }
+
+    await User.findByIdAndUpdate(id, {
+      $inc: { cokeCount: -price },
+      $push: {
+        inItemBox: {
+          purchasedBy: "me",
+          name,
+          location: [0, 0],
+        },
+      },
+    });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const getPresentBox = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    res.json({
+      result: user.presentBox,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
+const addPresentItem = async (req, res, next) => {
+  const { id } = req.params;
+  const { presentTo, name, price } = req.body;
+
+  try {
+    const user = await User.findById(id).exec();
+
+    await User.findByIdAndUpdate(id, {
+      $inc: { cokeCount: -price },
+    });
+
+    await User.findByIdAndUpdate(presentTo, {
+      $push: {
+        presentBox: {
+          purchasedBy: user.email,
+          name,
+          location: [0, 0],
+        },
+      },
+    });
+
+    res.status(201).json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+
 const getSearchResult = async (req, res, next) => {
   const { page = 1, size = 10, keyword = "" } = req.query;
   const query = keyword && new RegExp(keyword);
@@ -40,9 +209,8 @@ const getGuestBook = async (req, res, next) => {
 
   try {
     const user = await User.findById(id).exec();
-    const userGuestBook = user.guestBook;
 
-    res.json({ result: { guestBook: userGuestBook } });
+    res.json({ result: { guestBook: user.guestBook } });
   } catch (err) {
     console.error(err);
     next(err);
@@ -66,26 +234,26 @@ const addMessage = async (req, res, next) => {
         }
 
         userEmail = decoded.email;
-      }
+      },
     );
 
     const user = await User.findOne({ email: userEmail }).exec();
-    const userName = user.name;
+    const name = user.name;
 
     await User.findByIdAndUpdate(
       id,
       {
         $push: {
-          guestBook: { name: userName, message, date: isoDateTime },
+          guestBook: { name, message, date: isoDateTime },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     res.json({
       result: {
         newMessage: {
-          name: userName,
+          name,
           message,
           date: isoDateTime,
         },
@@ -97,7 +265,7 @@ const addMessage = async (req, res, next) => {
   }
 };
 
-const toggleItem = async (req, res, next) => {
+const changeItemStorage = async (req, res, next) => {
   const { id, itemId } = req.params;
   const { from, to } = req.body;
   const targetItem = [];
@@ -141,7 +309,7 @@ const changeItemLocation = async (req, res, next) => {
     await User.findByIdAndUpdate(
       id,
       { $set: { "outItemBox.$[item].location": newLocation } },
-      { arrayFilters: [{ "item._id": itemId }] }
+      { arrayFilters: [{ "item._id": itemId }] },
     );
 
     res.json({
@@ -161,6 +329,14 @@ module.exports = {
   getUserInfo,
   getGuestBook,
   addMessage,
-  toggleItem,
+  changeItemStorage,
   changeItemLocation,
+  getInItemBox,
+  addInItem,
+  getPresentBox,
+  addPresentItem,
+  getFriendList,
+  deleteFriend,
+  getPendingFriendList,
+  addPendingFriendList,
 };
