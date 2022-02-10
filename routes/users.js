@@ -21,7 +21,7 @@ const {
   deleteFriend,
   getPendingFriendList,
   addPendingFriendList,
-
+  deletePendingFriendList,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -61,5 +61,7 @@ router.delete("/:id/friends", deleteFriend);
 router.get("/:id/friends/pending", getPendingFriendList);
 
 router.post("/:id/friends/pending", addPendingFriendList);
+
+router.delete("/:id/friends/pending", deletePendingFriendList);
 
 module.exports = router;

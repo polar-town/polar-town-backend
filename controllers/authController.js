@@ -3,9 +3,7 @@ const createError = require("http-errors");
 const User = require("../models/User");
 
 const handleLogin = async (req, res, next) => {
-  const { name, email } = req.body;
-
-  console.log(req.cookies);
+  const { name, email, photo } = req.body;
 
   try {
     let user = await User.findOne({ email });
@@ -14,6 +12,7 @@ const handleLogin = async (req, res, next) => {
       const newUser = {
         name,
         email,
+        photo,
       };
 
       user = await User.create(newUser);
@@ -31,7 +30,7 @@ const handleLogin = async (req, res, next) => {
       { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) }
     );
 
-    await user.updateOne({ refreshToken });
+    await user.updateOne({ refreshToken, photo });
 
     res.cookie("jwt", refreshToken, {
       httpOnly: true,

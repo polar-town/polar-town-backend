@@ -32,7 +32,7 @@ const itemSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    enum: ["Bear", "Penguin", "Igloo", "Seal"],
+    enum: ["PolarBear", "Penguin", "Igloo", "Seal", "Flower"],
   },
   location: Array,
 });
@@ -56,6 +56,9 @@ const userSchema = new mongoose.Schema({
   iceCount: {
     type: Number,
     default: 0,
+  },
+  photo: {
+    type: String,
   },
   friendList: [friendSchema],
   pendingFriendList: [friendSchema],
