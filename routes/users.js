@@ -12,6 +12,7 @@ const {
   addMessage,
   changeItemStorage,
   changeItemLocation,
+  acceptFriendRequest,
   getInItemBox,
   addInItem,
   getPresentBox,
@@ -20,6 +21,7 @@ const {
   deleteFriend,
   getPendingFriendList,
   addPendingFriendList,
+
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -41,6 +43,8 @@ router.post("/:id/guestBook", addMessage);
 router.put("/:id/items/:itemId", changeItemStorage);
 
 router.put("/:id/items/:itemId/location", changeItemLocation);
+
+router.post("/:id/friends", acceptFriendRequest);
 
 router.get("/:id/items", getInItemBox);
 
