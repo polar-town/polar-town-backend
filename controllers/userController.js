@@ -107,7 +107,9 @@ const getInItemBox = async (req, res, next) => {
     const user = await User.findById(id).exec();
 
     res.json({
-      result: user.inItemBox,
+      result: {
+        inItemBox: user.inItemBox,
+      },
     });
   } catch (err) {
     console.error(err);

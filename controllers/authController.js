@@ -45,6 +45,7 @@ const handleLogin = async (req, res, next) => {
         accessToken,
         username: user.name,
         email: user.email,
+        iceCount: user.iceCount,
       },
     });
   } catch (error) {
@@ -99,7 +100,15 @@ const handleRefreshToken = async (req, res, next) => {
           { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) }
         );
 
-        res.json({ accessToken, username: user.name, email: user.email });
+        res.json({
+          result: {
+            id: user._id,
+            accessToken,
+            username: user.name,
+            email: user.email,
+            iceCount: user.iceCount,
+          },
+        });
       }
     );
   } catch (error) {
