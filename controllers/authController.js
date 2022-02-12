@@ -21,13 +21,13 @@ const handleLogin = async (req, res, next) => {
     const accessToken = jwt.sign(
       { email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: Number(process.env.ACCESS_TOKEN_MAX_AGE) },
+      { expiresIn: Number(process.env.ACCESS_TOKEN_MAX_AGE) }
     );
 
     const refreshToken = jwt.sign(
       { email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) },
+      { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) }
     );
 
     await user.updateOne({ refreshToken, photo });
@@ -46,6 +46,8 @@ const handleLogin = async (req, res, next) => {
         username: user.name,
         email: user.email,
         iceCount: user.iceCount,
+        friendList: user.friendList,
+        pendingFriendList: user.pendingFriendList,
       },
     });
   } catch (error) {
@@ -97,7 +99,7 @@ const handleRefreshToken = async (req, res, next) => {
         const accessToken = jwt.sign(
           { email: decoded.email },
           process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) },
+          { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) }
         );
 
         res.json({

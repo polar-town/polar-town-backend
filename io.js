@@ -1,13 +1,32 @@
 const { Server } = require("socket.io");
 
-module.exports = function (server) {
-  const io = new Server(server, {
-    cors: {
-      origin: process.env.CLIENT_URL,
-    },
-  });
+class Socket {
+  constructor(server) {
+    this.io = new Server(server, {
+      cors: {
+        origin: process.env.CLIENT_URL,
+      },
+    });
 
-  io.on("connection", (socket) => {
-    console.log("a user connected");
-  });
-};
+    this.io.on("connection", (socket) => {
+      console.log("a user connected");
+    });
+  }
+}
+
+let socket;
+
+function initSocket(server) {
+  if (!socket) {
+    socket = new Socket(server);
+  }
+}
+
+function getSocketIo() {
+  if (!socket) {
+    throw new Error("Please call init first");
+  }
+  return socket.io;
+}
+
+module.exports = { initSocket, getSocketIo };
