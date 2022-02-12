@@ -6,11 +6,13 @@ const {
 } = require("../controllers/mailController");
 
 const {
+  getSearchResult,
   getUserInfo,
   getGuestBook,
   addMessage,
   changeItemStorage,
   changeItemLocation,
+  acceptFriendRequest,
   getInItemBox,
   addInItem,
   getPresentBox,
@@ -19,9 +21,12 @@ const {
   deleteFriend,
   getPendingFriendList,
   addPendingFriendList,
+  deletePendingFriendList,
 } = require("../controllers/userController");
 
 const router = express.Router();
+
+router.get("/", getSearchResult);
 
 router.get("/:id", getUserInfo);
 
@@ -39,6 +44,8 @@ router.put("/:id/items/:itemId", changeItemStorage);
 
 router.put("/:id/items/:itemId/location", changeItemLocation);
 
+router.post("/:id/friends", acceptFriendRequest);
+
 router.get("/:id/items", getInItemBox);
 
 router.post("/:id/items", addInItem);
@@ -54,5 +61,7 @@ router.delete("/:id/friends", deleteFriend);
 router.get("/:id/friends/pending", getPendingFriendList);
 
 router.post("/:id/friends/pending", addPendingFriendList);
+
+router.delete("/:id/friends/pending", deletePendingFriendList);
 
 module.exports = router;

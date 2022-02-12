@@ -3,7 +3,7 @@ const createError = require("http-errors");
 const User = require("../models/User");
 
 const handleLogin = async (req, res, next) => {
-  const { name, email } = req.body;
+  const { name, email, photo } = req.body;
 
   try {
     let user = await User.findOne({ email });
@@ -12,6 +12,7 @@ const handleLogin = async (req, res, next) => {
       const newUser = {
         name,
         email,
+        photo,
       };
 
       user = await User.create(newUser);
@@ -29,7 +30,7 @@ const handleLogin = async (req, res, next) => {
       { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) },
     );
 
-    await user.updateOne({ refreshToken });
+    await user.updateOne({ refreshToken, photo });
 
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
@@ -46,6 +47,7 @@ const handleLogin = async (req, res, next) => {
         email: user.email,
         pendingFriendList: user.pendingFriendList,
         friendList: user.friendList,
+        iceCount: user.iceCount,
       },
     });
   } catch (error) {
@@ -100,7 +102,17 @@ const handleRefreshToken = async (req, res, next) => {
           { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) },
         );
 
-        res.json({ accessToken, username: user.name, email: user.email });
+        res.json({
+          result: {
+            id: user._id,
+            accessToken,
+            username: user.name,
+            email: user.email,
+            pendingFriendList: user.pendingFriendList,
+            friendList: user.friendList,
+            iceCount: user.iceCount,
+          },
+        });
       },
     );
   } catch (error) {

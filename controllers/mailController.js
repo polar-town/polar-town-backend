@@ -1,15 +1,20 @@
 const axios = require("axios");
+const User = require("../models/User");
 const { getMailBody } = require("../utils/getMailBody");
 
 const getMailList = async (req, res, next) => {
-  const { gapitAuthorization } = req.headers;
+  const { gapiauthorization } = req.headers;
   const { inBoxId } = req.params;
 
   try {
-    const headers = { authorization: gapitAuthorization };
+    const headers = { Authorization: gapiauthorization };
     const mailListUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=${inBoxId}&maxResults=10`;
     const response = await axios.get(mailListUrl, { headers });
     const nextPageToken = response.data.nextPageToken;
+
+    if (!response.data.resultSizeEstimate) {
+      return res.json({ result: [] });
+    }
 
     const mailList = await Promise.all(
       response.data.messages.map(async (message) => {
@@ -67,7 +72,7 @@ const moveToTrash = async (req, res, next) => {
         addLabelIds: ["TRASH"],
         removeLabelIds: ["CATEGORY_PROMOTIONS", "SPAM"],
       },
-      headers,
+      { headers },
     );
 
     res.send({ result: "ok" });
@@ -78,18 +83,25 @@ const moveToTrash = async (req, res, next) => {
 };
 
 const deleteTrash = async (req, res, next) => {
+  const { id } = req.params;
   const { gapiauthorization } = req.headers;
-  const { mailId } = req.body;
+  const { mail, cokeCount } = req.body;
   const headers = { Authorization: gapiauthorization };
 
   try {
     await axios.post(
       "https://gmail.googleapis.com/gmail/v1/users/me/messages/batchDelete",
       {
-        ids: mailId,
+        ids: mail,
       },
-      headers,
+      { headers },
     );
+
+    await User.findByIdAndUpdate(id, {
+      $inc: {
+        cokeCount,
+      },
+    });
 
     res.send({ result: "ok" });
   } catch (error) {

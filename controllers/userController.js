@@ -6,7 +6,7 @@ const getFriendList = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findById(id).exec();
+    const user = await User.findById(id).populate("friendList.userId").exec();
 
     res.json({
       result: user.friendList,
@@ -41,7 +41,9 @@ const getPendingFriendList = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const user = await User.findById(id).exec();
+    const user = await User.findById(id)
+      .populate("pendingFriendList.userId")
+      .exec();
 
     res.json({
       result: user.pendingFriendList,
@@ -78,6 +80,26 @@ const addPendingFriendList = async (req, res, next) => {
   }
 };
 
+const deletePendingFriendList = async (req, res, next) => {
+  const { id } = req.params;
+  const { email } = req.body;
+
+  try {
+    const deleteTarget = await User.findOne({ email }).exec();
+
+    await User.findByIdAndUpdate(id, {
+      $pull: { pendingFriendList: { userId: deleteTarget._id } },
+    });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
 const getInItemBox = async (req, res, next) => {
   const { id } = req.params;
 
@@ -85,7 +107,9 @@ const getInItemBox = async (req, res, next) => {
     const user = await User.findById(id).exec();
 
     res.json({
-      result: user.inItemBox,
+      result: {
+        inItemBox: user.inItemBox,
+      },
     });
   } catch (err) {
     console.error(err);
@@ -173,6 +197,24 @@ const addPresentItem = async (req, res, next) => {
   }
 };
 
+const getSearchResult = async (req, res, next) => {
+  const { page = 1, size = 10, keyword = "" } = req.query;
+  const query = keyword && new RegExp(keyword);
+  const limit = parseInt(size);
+  const skip = (page - 1) * size;
+
+  try {
+    const users = await User.find(query ? { email: query } : {})
+      .limit(limit)
+      .skip(skip);
+
+    res.json({ result: { page, size, users } });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
 const getUserInfo = async (req, res, next) => {
   const { id } = req.params;
 
@@ -220,7 +262,6 @@ const addMessage = async (req, res, next) => {
         userEmail = decoded.email;
       },
     );
-
     const user = await User.findOne({ email: userEmail }).exec();
     const name = user.name;
 
@@ -308,12 +349,51 @@ const changeItemLocation = async (req, res, next) => {
   }
 };
 
+const acceptFriendRequest = async (req, res, next) => {
+  const { id } = req.params;
+  const { email, isAlarm } = req.body;
+  const newPendingFriendList = [];
+  const newFriendList = [];
+
+  try {
+    const user = await User.findById(id);
+    const pendingFriend = await User.findOne({ email });
+
+    user.pendingFriendList.forEach((friend) => {
+      if (String(friend.userId) === String(pendingFriend._id)) {
+        newFriendList.push({ userId: pendingFriend._id, isChecked: true });
+      } else {
+        if (isAlarm) {
+          newPendingFriendList.push({ userId: friend.userId });
+        }
+        if (!isAlarm) {
+          newPendingFriendList.push({ userId: friend.userId, isChecked: true });
+        }
+      }
+    });
+
+    user.pendingFriendList = newPendingFriendList;
+    user.friendList.push(...newFriendList);
+
+    await user.save();
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+};
+
 module.exports = {
+  getSearchResult,
   getUserInfo,
   getGuestBook,
   addMessage,
   changeItemStorage,
   changeItemLocation,
+  acceptFriendRequest,
   getInItemBox,
   addInItem,
   getPresentBox,
@@ -322,4 +402,5 @@ module.exports = {
   deleteFriend,
   getPendingFriendList,
   addPendingFriendList,
+  deletePendingFriendList,
 };
