@@ -45,6 +45,8 @@ const handleLogin = async (req, res, next) => {
         accessToken,
         username: user.name,
         email: user.email,
+        pendingFriendList: user.pendingFriendList,
+        friendList: user.friendList,
         iceCount: user.iceCount,
       },
     });
@@ -106,10 +108,12 @@ const handleRefreshToken = async (req, res, next) => {
             accessToken,
             username: user.name,
             email: user.email,
+            pendingFriendList: user.pendingFriendList,
+            friendList: user.friendList,
             iceCount: user.iceCount,
           },
         });
-      }
+      },
     );
   } catch (error) {
     console.error(error);

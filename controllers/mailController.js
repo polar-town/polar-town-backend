@@ -1,6 +1,6 @@
 const axios = require("axios");
 const User = require("../models/User");
-const { getMailBody } = require("../utils/getMailBody");
+const { getMailBody } = require("../routes/utils/getMailBody");
 
 const getMailList = async (req, res, next) => {
   const { gapiauthorization } = req.headers;
