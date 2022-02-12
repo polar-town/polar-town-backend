@@ -28,6 +28,10 @@ const deleteFriend = async (req, res, next) => {
       $pull: { friendList: { userId: deleteTarget._id } },
     });
 
+    await User.findByIdAndUpdate(deleteTarget._id, {
+      $pull: { friendList: { userId: id } },
+    });
+
     res.json({
       result: "ok",
     });
@@ -376,6 +380,12 @@ const acceptFriendRequest = async (req, res, next) => {
     user.friendList.push(...newFriendList);
 
     await user.save();
+
+    await User.findByIdAndUpdate(pendingFriend._id, {
+      $push: {
+        friendList: { userId: id, isChecked: true },
+      },
+    });
 
     res.json({
       result: "ok",
