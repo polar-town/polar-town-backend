@@ -30,7 +30,7 @@ router.get("/", getSearchResult);
 
 router.get("/:id", getUserInfo);
 
-router.get("/:id/mails/:inBoxId", getMailList);
+router.get("/:id/mails/:inBoxId/:pageToken", getMailList);
 
 router.post("/:id/mails/trash", moveToTrash);
 
