@@ -4,11 +4,13 @@ const { getMailBody } = require("../routes/utils/getMailBody");
 
 const getMailList = async (req, res, next) => {
   const { gapiauthorization } = req.headers;
-  const { inBoxId } = req.params;
+  let { inBoxId, pageToken } = req.params;
+
+  pageToken === "null" ? (pageToken = "") : pageToken;
 
   try {
     const headers = { Authorization: gapiauthorization };
-    const mailListUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=${inBoxId}&maxResults=10`;
+    const mailListUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=${inBoxId}&maxResults=10&pageToken=${pageToken}`;
     const response = await axios.get(mailListUrl, { headers });
     const nextPageToken = response.data.nextPageToken;
 
