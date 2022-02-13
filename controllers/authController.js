@@ -48,6 +48,7 @@ const handleLogin = async (req, res, next) => {
         pendingFriendList: user.pendingFriendList,
         friendList: user.friendList,
         iceCount: user.iceCount,
+        cokeCount: user.cokeCount,
       },
     });
   } catch (error) {
