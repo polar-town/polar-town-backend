@@ -48,8 +48,7 @@ const handleLogin = async (req, res, next) => {
         pendingFriendList: user.pendingFriendList,
         friendList: user.friendList,
         iceCount: user.iceCount,
-        friendList: user.friendList,
-        pendingFriendList: user.pendingFriendList,
+        cokeCount: user.cokeCount,
       },
     });
   } catch (error) {
@@ -113,9 +112,10 @@ const handleRefreshToken = async (req, res, next) => {
             pendingFriendList: user.pendingFriendList,
             friendList: user.friendList,
             iceCount: user.iceCount,
+            cokeCount: user.cokeCount,
           },
         });
-      },
+      }
     );
   } catch (error) {
     console.error(error);
