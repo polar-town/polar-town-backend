@@ -2,11 +2,12 @@ const { Server } = require("socket.io");
 const Visitor = require("./data/visitor");
 const Guestbook = require("./data/guestbook");
 const Town = require("./data/town");
+const { EVENTS, TYPE } = require("./constants/index");
 
 class Socket {
   constructor(server) {
     this.ONLINE_USER = {};
-    this.TOWN_DATA = {};
+    this.TOWN_CHANNEL = {};
 
     this.io = new Server(server, {
       cors: {
@@ -17,38 +18,43 @@ class Socket {
     this.io.on("connection", (socket) => {
       const socketId = socket.id;
 
-      socket.on("newVisitor", async (data) => {
+      socket.on(EVENTS.JOIN, async (data) => {
         const { townId, user } = data;
 
-        if (!this.TOWN_DATA[townId]) {
+        socket.join(townId);
+
+        if (!this.TOWN_CHANNEL[townId]) {
           const visitor = new Visitor();
           const guestbook = new Guestbook();
           const town = new Town(visitor, guestbook);
 
-          this.TOWN_DATA[townId] = town;
-        }
-
-        socket.join(townId);
-
-        if (this.ONLINE_USER[user.email]) {
-          const prevTownId = this.ONLINE_USER[user.email];
-          this.TOWN_DATA[prevTownId].removeVisitor(user);
-
-          socket.leave(prevTownId);
-          this.io.to(prevTownId).emit("visitorLeft", {
-            visitors: this.TOWN_DATA[prevTownId].getVisitors(),
-            user,
-          });
+          this.TOWN_CHANNEL[townId] = town;
         }
 
         user.socketId = socketId;
-        this.TOWN_DATA[townId].addVisitor(user);
+        this.TOWN_CHANNEL[townId].addVisitor(user);
         this.ONLINE_USER[user.email] = townId;
 
-        this.io.to(townId).emit("newVisitor", {
-          visitors: this.TOWN_DATA[townId].getVisitors(),
+        this.io.to(townId).emit(EVENTS.JOIN, {
+          visitors: this.TOWN_CHANNEL[townId].getVisitors(),
           user,
         });
+        console.log(this.ONLINE_USER, this.TOWN_CHANNEL);
+      });
+
+      socket.on(EVENTS.LEFT, (data) => {
+        const { prevTownId, user, type } = data;
+
+        if (type === TYPE.SIGNOUT) {
+          delete this.ONLINE_USER[user.email];
+        }
+
+        this.TOWN_CHANNEL[prevTownId].removeVisitor(user);
+        this.io.to(prevTownId).emit(EVENTS.LEFT, {
+          visitors: this.TOWN_CHANNEL[prevTownId].getVisitors(),
+          user,
+        });
+        socket.leave(prevTownId);
       });
     });
   }
