@@ -8,9 +8,12 @@ class Visitor {
   }
 
   leave(target) {
-    this.visitors = this.visitors.filter(
+    const updatedVisitors = this.visitors.filter(
       (visitor) => visitor.email !== target.email
     );
+
+    this.visitors = updatedVisitors;
+    return updatedVisitors;
   }
 
   findDuplicate(target) {
