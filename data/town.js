@@ -4,8 +4,16 @@ class Town {
     this.guestbook = guestbook;
   }
 
-  addGuestbook(message) {
-    this.guestbook.add(message);
+  async addGuestbook(townId, message) {
+    try {
+      if (!this.guestbook.messages.length) {
+        await this.guestbook.initGuestBook(townId);
+      }
+
+      return this.guestbook.add(message);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   addVisitor(target) {
@@ -14,16 +22,11 @@ class Town {
   }
 
   removeVisitor(target) {
-    this.visitor.leave(target);
+    return this.visitor.leave(target);
   }
 
   getVisitors() {
     return this.visitor.visitors;
-  }
-
-  async getGuestbook(townId) {
-    await this.guestbook.initGuestBook(townId);
-    return this.guestbook.messages;
   }
 }
 
