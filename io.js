@@ -41,6 +41,16 @@ class Socket {
         });
       });
 
+      socket.on(EVENTS.SEND_PRESENT, async (data) => {
+        const { from, to } = data;
+
+        if (this.ONLINE_USER[to]) {
+          this.io.to(this.ONLINE_USER[to].socketId).emit(EVENTS.GET_PRESENT, {
+            from,
+          });
+        }
+      });
+
       socket.on(EVENTS.LEFT, (data) => {
         const { prevTownId, user, type } = data;
         const visitors = this.TOWN_CHANNEL[prevTownId]?.removeVisitor(user);
