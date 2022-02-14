@@ -39,7 +39,6 @@ class Socket {
           visitors: this.TOWN_CHANNEL[townId].getVisitors(),
           user,
         });
-        console.log(this.ONLINE_USER, this.TOWN_CHANNEL);
       });
 
       socket.on(EVENTS.LEFT, (data) => {
@@ -68,7 +67,7 @@ function initSocket(server) {
   }
 }
 
-function getSocketIo() {
+function getSocketIO() {
   if (!socket) {
     throw new Error("Please call init first");
   }
@@ -76,11 +75,24 @@ function getSocketIo() {
 }
 
 function getOnlineUser() {
-  return this.ONLINE_USER;
+  if (!socket) {
+    throw new Error("Please call init first");
+  }
+
+  return socket.ONLINE_USER;
 }
 
-function getTownData() {
-  return this.TOWN_DATA;
+function getTownData(townId) {
+  if (!socket) {
+    throw new Error("Please call init first");
+  }
+
+  return socket.TOWN_CHANNEL[townId];
 }
 
-module.exports = { initSocket, getSocketIo, getOnlineUser, getTownData };
+module.exports = {
+  initSocket,
+  getSocketIO,
+  getOnlineUser,
+  getTownData,
+};

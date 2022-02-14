@@ -9,6 +9,7 @@ class Town {
   }
 
   addVisitor(target) {
+    if (this.visitor.findDuplicate(target)) return;
     this.visitor.join(target);
   }
 
