@@ -126,7 +126,7 @@ const addInItem = async (req, res, next) => {
   const { name, price } = req.body;
 
   try {
-    if (name === "ice") {
+    if (name === "Ice") {
       await User.findByIdAndUpdate(id, {
         $inc: { iceCount: 1, cokeCount: -price },
       });
