@@ -32,7 +32,7 @@ const itemSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    enum: ["PolarBear", "Penguin", "Igloo", "Seal", "Flower"],
+    enum: ["PolarBear", "Penguin", "Igloo", "Seal", "Flower", "Ice"],
   },
   location: Array,
 });

@@ -4,6 +4,8 @@ const EVENTS = {
   GET_MESSAGES: "getMessage",
   SEND_MESSAGE: "sendMessage",
   DISCONNECT: "disconnect",
+  GET_PRESENT: "getPresent",
+  SEND_PRESENT: "sendPresent",
 };
 
 const TYPE = {

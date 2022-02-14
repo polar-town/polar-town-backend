@@ -3,6 +3,7 @@ const Visitor = require("./data/visitor");
 const Guestbook = require("./data/guestbook");
 const Town = require("./data/town");
 const { EVENTS, TYPE } = require("./constants/index");
+const User = require("./models/User");
 
 class Socket {
   constructor(server) {
@@ -33,12 +34,22 @@ class Socket {
 
         user.socketId = socketId;
         this.TOWN_CHANNEL[townId].addVisitor(user);
-        this.ONLINE_USER[user.email] = townId;
+        this.ONLINE_USER[user.email] = { townId, socketId };
 
         this.io.to(townId).emit(EVENTS.JOIN, {
           visitors: this.TOWN_CHANNEL[townId].getVisitors(),
           user,
         });
+      });
+
+      socket.on(EVENTS.SEND_PRESENT, async (data) => {
+        const { from, to } = data;
+
+        if (this.ONLINE_USER[to]) {
+          this.io.to(this.ONLINE_USER[to].socketId).emit(EVENTS.GET_PRESENT, {
+            from,
+          });
+        }
       });
 
       socket.on(EVENTS.LEFT, (data) => {
