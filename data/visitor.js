@@ -12,6 +12,10 @@ class Visitor {
       (visitor) => visitor.email !== target.email
     );
   }
+
+  findDuplicate(target) {
+    return this.visitors.some((visitor) => visitor.email === target.email);
+  }
 }
 
 module.exports = Visitor;
