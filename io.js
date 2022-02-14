@@ -3,6 +3,7 @@ const Visitor = require("./data/visitor");
 const Guestbook = require("./data/guestbook");
 const Town = require("./data/town");
 const { EVENTS, TYPE } = require("./constants/index");
+const User = require("./models/User");
 
 class Socket {
   constructor(server) {
@@ -68,6 +69,19 @@ class Socket {
         );
 
         this.io.to(townId).emit(EVENTS.GET_MESSAGES, updatedMessageList);
+      });
+
+      socket.on(EVENTS.FRIEND_REQUEST, (data) => {
+        const { to, userName, email } = data;
+
+        if (this.ONLINE_USER[to]) {
+          const { socketId } = this.ONLINE_USER[to];
+
+          this.io.to(socketId).emit(EVENTS.FRIEND_REQUEST, {
+            userName,
+            email,
+          });
+        }
       });
     });
   }

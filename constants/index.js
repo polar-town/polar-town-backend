@@ -6,6 +6,7 @@ const EVENTS = {
   GET_MESSAGES: "getMessage",
   SEND_MESSAGE: "sendMessage",
   DISCONNECT: "disconnect",
+  FRIEND_REQUEST: "friendRequest",
 };
 
 const TYPE = {
