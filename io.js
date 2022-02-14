@@ -31,29 +31,43 @@ class Socket {
           this.TOWN_CHANNEL[townId] = town;
         }
 
-        user.socketId = socketId;
         this.TOWN_CHANNEL[townId].addVisitor(user);
-        this.ONLINE_USER[user.email] = townId;
+        this.ONLINE_USER[user.email] = { townId, socketId };
 
         this.io.to(townId).emit(EVENTS.JOIN, {
-          visitors: this.TOWN_CHANNEL[townId].getVisitors(),
+          visitors: this.TOWN_CHANNEL[townId]?.getVisitors(),
           user,
         });
       });
 
       socket.on(EVENTS.LEFT, (data) => {
         const { prevTownId, user, type } = data;
+        const visitors = this.TOWN_CHANNEL[prevTownId]?.removeVisitor(user);
+
+        this.io.to(prevTownId).emit(EVENTS.LEFT, {
+          visitors,
+          user,
+        });
+
+        socket.leave(prevTownId);
+
+        if (!visitors.length) {
+          delete this.TOWN_CHANNEL[prevTownId];
+        }
 
         if (type === TYPE.SIGNOUT) {
           delete this.ONLINE_USER[user.email];
         }
+      });
 
-        this.TOWN_CHANNEL[prevTownId].removeVisitor(user);
-        this.io.to(prevTownId).emit(EVENTS.LEFT, {
-          visitors: this.TOWN_CHANNEL[prevTownId].getVisitors(),
-          user,
-        });
-        socket.leave(prevTownId);
+      socket.on(EVENTS.SEND_MESSAGE, async (data) => {
+        const { townId, message } = data;
+        const updatedMessageList = await this.TOWN_CHANNEL[townId].addGuestbook(
+          townId,
+          message
+        );
+
+        this.io.to(townId).emit(EVENTS.GET_MESSAGES, updatedMessageList);
       });
     });
   }

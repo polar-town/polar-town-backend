@@ -6,12 +6,17 @@ class Guestbook {
   }
 
   async initGuestBook(townId) {
-    const user = await User.findById(townId);
-    this.messages = user.guestBook;
+    try {
+      const user = await User.findById(townId);
+      this.messages = user.guestBook;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   add(message) {
     this.messages.push(message);
+    return this.messages;
   }
 }
 
