@@ -72,7 +72,7 @@ const addPendingFriendList = async (req, res, next) => {
             isChecked: false,
           },
         },
-      }
+      },
     ).setOptions({ runValidators: true });
 
     res.status(201).json({
@@ -142,7 +142,7 @@ const addInItem = async (req, res, next) => {
         inItemBox: {
           purchasedBy: "me",
           name,
-          location: [0, 0],
+          location: null,
         },
       },
     });
@@ -187,7 +187,7 @@ const addPresentItem = async (req, res, next) => {
         presentBox: {
           purchasedBy: user.email,
           name,
-          location: [0, 0],
+          location: null,
         },
       },
     });
@@ -264,7 +264,7 @@ const addMessage = async (req, res, next) => {
         }
 
         userEmail = decoded.email;
-      }
+      },
     );
 
     const user = await User.findOne({ email: userEmail }).exec();
@@ -277,7 +277,7 @@ const addMessage = async (req, res, next) => {
           guestBook: { name, message, date: isoDateTime },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     res.json({
@@ -297,7 +297,7 @@ const addMessage = async (req, res, next) => {
 
 const changeItemStorage = async (req, res, next) => {
   const { id, itemId } = req.params;
-  const { from, to } = req.body;
+  const { from, to, index } = req.body;
   const targetItem = [];
   const restItems = [];
 
@@ -306,7 +306,7 @@ const changeItemStorage = async (req, res, next) => {
 
     user[from].forEach((item) => {
       if (item._id.toString() === itemId) {
-        item.location = [100, 100];
+        item.location = index;
         targetItem.push(item);
       } else {
         restItems.push(item);
@@ -333,19 +333,19 @@ const changeItemStorage = async (req, res, next) => {
 
 const changeItemLocation = async (req, res, next) => {
   const { id, itemId } = req.params;
-  const { newLocation } = req.body;
+  const { newIndex } = req.body;
 
   try {
     await User.findByIdAndUpdate(
       id,
-      { $set: { "outItemBox.$[item].location": newLocation } },
-      { arrayFilters: [{ "item._id": itemId }] }
+      { $set: { "outItemBox.$[item].location": newIndex } },
+      { arrayFilters: [{ "item._id": itemId }] },
     );
 
     res.json({
       result: {
         itemId,
-        location: newLocation,
+        location: newIndex,
       },
     });
   } catch (err) {

@@ -34,7 +34,7 @@ const itemSchema = new mongoose.Schema({
     type: String,
     enum: ["PolarBear", "Penguin", "Igloo", "Seal", "Flower", "Ice"],
   },
-  location: Array,
+  location: Number,
 });
 
 const userSchema = new mongoose.Schema({
