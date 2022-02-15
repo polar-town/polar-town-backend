@@ -62,7 +62,7 @@ class Socket {
 
         socket.leave(prevTownId);
 
-        if (!visitors.length) {
+        if (!visitors?.length) {
           delete this.TOWN_CHANNEL[prevTownId];
         }
 
@@ -75,7 +75,7 @@ class Socket {
         const { townId, message } = data;
         const updatedMessageList = await this.TOWN_CHANNEL[townId].addGuestbook(
           townId,
-          message
+          message,
         );
 
         this.io.to(townId).emit(EVENTS.GET_MESSAGES, updatedMessageList);
