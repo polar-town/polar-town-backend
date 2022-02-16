@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const User = require("../models/User");
 const { LOCATION } = require("../constants");
@@ -227,7 +226,7 @@ const getUserInfo = async (req, res, next) => {
     const user = await User.findById(id).exec();
 
     res.json({
-      result: user,
+      result: { user },
     });
   } catch (err) {
     console.error(err);
@@ -251,31 +250,18 @@ const getGuestBook = async (req, res, next) => {
 const addMessage = async (req, res, next) => {
   const { id } = req.params;
   const { message } = req.body;
-  const refershToken = req.cookies.jwt;
   const isoDateTime = new Date().toISOString();
-  let userEmail;
+  const userEmail = req.userEmail;
 
   try {
-    jwt.verify(
-      refershToken,
-      process.env.ACCESS_TOKEN_SECRET,
-      (err, decoded) => {
-        if (err) {
-          return createError(403, "Forbidden");
-        }
-
-        userEmail = decoded.email;
-      },
-    );
-
     const user = await User.findOne({ email: userEmail }).exec();
-    const name = user.name;
+    const { name, photo } = user;
 
     await User.findByIdAndUpdate(
       id,
       {
         $push: {
-          guestBook: { name, message, date: isoDateTime },
+          guestBook: { name, message, date: isoDateTime, photo },
         },
       },
       { new: true },
@@ -287,11 +273,40 @@ const addMessage = async (req, res, next) => {
           name,
           message,
           date: isoDateTime,
+          photo,
         },
       },
     });
   } catch (err) {
     console.error(err);
+    next(err);
+  }
+};
+
+const checkNewGuestBook = async (req, res, next) => {
+  console.log("방명록 확인 했슈");
+  const { id } = req.params;
+  console.log(id);
+  try {
+    const user = await User.findById(id);
+    const newGuestBook = user.guestBook.map((msg) => {
+      const { _id, name, date, message } = msg;
+
+      return {
+        _id,
+        name,
+        date,
+        isChecked: true,
+        message,
+      };
+    });
+
+    await User.findByIdAndUpdate(id, { guestBook: newGuestBook });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
     next(err);
   }
 };
@@ -403,6 +418,7 @@ module.exports = {
   getUserInfo,
   getGuestBook,
   addMessage,
+  checkNewGuestBook,
   changeItemStorage,
   changeItemLocation,
   acceptFriendRequest,

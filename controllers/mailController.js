@@ -1,6 +1,6 @@
 const axios = require("axios");
 const User = require("../models/User");
-const { getMailBody } = require("../routes/utils/getMailBody");
+const { getMailBody } = require("../utils/getMailBody");
 
 const getMailList = async (req, res, next) => {
   const { gapiauthorization } = req.headers;
@@ -25,7 +25,7 @@ const getMailList = async (req, res, next) => {
         const mail = await axios.get(getEachMailUrl, { headers });
 
         return mail.data;
-      }),
+      })
     );
 
     const decodedMailList = mailList.map((mail) => {
@@ -74,7 +74,7 @@ const moveToTrash = async (req, res, next) => {
         addLabelIds: ["TRASH"],
         removeLabelIds: ["CATEGORY_PROMOTIONS", "SPAM"],
       },
-      { headers },
+      { headers }
     );
 
     res.send({ result: "ok" });
@@ -96,7 +96,7 @@ const deleteTrash = async (req, res, next) => {
       {
         ids: mail,
       },
-      { headers },
+      { headers }
     );
 
     await User.findByIdAndUpdate(id, {
