@@ -9,6 +9,7 @@ class Guestbook {
     try {
       const user = await User.findById(townId);
       this.messages = user.guestBook;
+      return this.messages;
     } catch (error) {
       console.error(error);
     }

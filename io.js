@@ -36,8 +36,14 @@ class Socket {
         this.ONLINE_USER[user.email] = { townId, socketId };
 
         this.io.to(townId).emit(EVENTS.JOIN, {
-          visitors: this.TOWN_CHANNEL[townId]?.getVisitors(),
+          visitors: this.TOWN_CHANNEL[townId].getVisitors(),
           user,
+        });
+
+        socket.on(EVENTS.DISCONNECT, (data) => {
+          const visitors = this.TOWN_CHANNEL[townId].removeVisitor(user);
+
+          this.io.to(townId).emit(EVENTS.LEFT, { visitors, user });
         });
       });
 
@@ -53,7 +59,7 @@ class Socket {
 
       socket.on(EVENTS.LEFT, (data) => {
         const { prevTownId, user, type } = data;
-        const visitors = this.TOWN_CHANNEL[prevTownId]?.removeVisitor(user);
+        const visitors = this.TOWN_CHANNEL[prevTownId].removeVisitor(user);
 
         this.io.to(prevTownId).emit(EVENTS.LEFT, {
           visitors,
@@ -72,6 +78,7 @@ class Socket {
       });
 
       socket.on(EVENTS.SEND_MESSAGE, async (data) => {
+        console.log("채팅 발생!!!", data);
         const { townId, message } = data;
         const updatedMessageList = await this.TOWN_CHANNEL[townId].addGuestbook(
           townId,
