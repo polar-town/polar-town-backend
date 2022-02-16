@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const User = require("../models/User");
+const { LOCATION } = require("../constants");
 
 const getFriendList = async (req, res, next) => {
   const { id } = req.params;
@@ -72,14 +73,14 @@ const addPendingFriendList = async (req, res, next) => {
             isChecked: false,
           },
         },
-      }
+      },
     ).setOptions({ runValidators: true });
 
     res.status(201).json({
       result: "ok",
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     next(err);
   }
 };
@@ -142,7 +143,7 @@ const addInItem = async (req, res, next) => {
         inItemBox: {
           purchasedBy: "me",
           name,
-          location: [0, 0],
+          location: LOCATION.STATIC_LOCATION,
         },
       },
     });
@@ -187,7 +188,7 @@ const addPresentItem = async (req, res, next) => {
         presentBox: {
           purchasedBy: user.email,
           name,
-          location: [0, 0],
+          location: LOCATION.STATIC_LOCATION,
         },
       },
     });
@@ -264,7 +265,7 @@ const addMessage = async (req, res, next) => {
         }
 
         userEmail = decoded.email;
-      }
+      },
     );
 
     const user = await User.findOne({ email: userEmail }).exec();
@@ -277,7 +278,7 @@ const addMessage = async (req, res, next) => {
           guestBook: { name, message, date: isoDateTime },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     res.json({
@@ -306,7 +307,7 @@ const changeItemStorage = async (req, res, next) => {
 
     user[from].forEach((item) => {
       if (item._id.toString() === itemId) {
-        item.location = [100, 100];
+        item.location = LOCATION.STATIC_LOCATION;
         targetItem.push(item);
       } else {
         restItems.push(item);
@@ -339,7 +340,7 @@ const changeItemLocation = async (req, res, next) => {
     await User.findByIdAndUpdate(
       id,
       { $set: { "outItemBox.$[item].location": newLocation } },
-      { arrayFilters: [{ "item._id": itemId }] }
+      { arrayFilters: [{ "item._id": itemId }] },
     );
 
     res.json({

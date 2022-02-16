@@ -16,4 +16,8 @@ const TYPE = {
   TRANSITION: "transition",
 };
 
-module.exports = { EVENTS, TYPE };
+const LOCATION = {
+  STATIC_LOCATION: [600, 290],
+};
+
+module.exports = { EVENTS, TYPE, LOCATION };
