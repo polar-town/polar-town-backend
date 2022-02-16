@@ -13,6 +13,9 @@ const guestBookSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  photo: {
+    type: String,
+  },
 });
 
 const friendSchema = new mongoose.Schema({
