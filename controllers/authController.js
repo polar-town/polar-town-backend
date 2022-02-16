@@ -40,16 +40,7 @@ const handleLogin = async (req, res, next) => {
     });
 
     res.json({
-      result: {
-        id: user._id,
-        accessToken,
-        username: user.name,
-        email: user.email,
-        pendingFriendList: user.pendingFriendList,
-        friendList: user.friendList,
-        iceCount: user.iceCount,
-        cokeCount: user.cokeCount,
-      },
+      result: { accessToken, user },
     });
   } catch (error) {
     console.error(error);
@@ -104,16 +95,7 @@ const handleRefreshToken = async (req, res, next) => {
         );
 
         res.json({
-          result: {
-            id: user._id,
-            accessToken,
-            username: user.name,
-            email: user.email,
-            pendingFriendList: user.pendingFriendList,
-            friendList: user.friendList,
-            iceCount: user.iceCount,
-            cokeCount: user.cokeCount,
-          },
+          result: { accessToken, user },
         });
       }
     );

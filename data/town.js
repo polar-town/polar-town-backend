@@ -7,7 +7,8 @@ class Town {
   async addGuestbook(townId, message) {
     try {
       if (!this.guestbook.messages.length) {
-        await this.guestbook.initGuestBook(townId);
+        const messages = await this.guestbook.initGuestBook(townId);
+        return messages;
       }
 
       return this.guestbook.add(message);
