@@ -10,6 +10,7 @@ const {
   getUserInfo,
   getGuestBook,
   addMessage,
+  checkNewGuestBook,
   changeItemStorage,
   changeItemLocation,
   acceptFriendRequest,
@@ -39,6 +40,8 @@ router.delete("/:id/mails/trash", deleteTrash);
 router.get("/:id/guestBook", getGuestBook);
 
 router.post("/:id/guestBook", addMessage);
+
+router.put("/:id/guestBook", checkNewGuestBook);
 
 router.put("/:id/items/:itemId", changeItemStorage);
 

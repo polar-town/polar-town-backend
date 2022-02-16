@@ -71,7 +71,7 @@ const addPendingFriendList = async (req, res, next) => {
             isChecked: false,
           },
         },
-      }
+      },
     ).setOptions({ runValidators: true });
 
     res.status(201).json({
@@ -253,16 +253,16 @@ const addMessage = async (req, res, next) => {
 
   try {
     const user = await User.findOne({ email: userEmail }).exec();
-    const name = user.name;
+    const { name, photo } = user;
 
     await User.findByIdAndUpdate(
       id,
       {
         $push: {
-          guestBook: { name, message, date: isoDateTime },
+          guestBook: { name, message, date: isoDateTime, photo },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     res.json({
@@ -271,11 +271,40 @@ const addMessage = async (req, res, next) => {
           name,
           message,
           date: isoDateTime,
+          photo,
         },
       },
     });
   } catch (err) {
     console.error(err);
+    next(err);
+  }
+};
+
+const checkNewGuestBook = async (req, res, next) => {
+  console.log("방명록 확인 했슈");
+  const { id } = req.params;
+  console.log(id);
+  try {
+    const user = await User.findById(id);
+    const newGuestBook = user.guestBook.map((msg) => {
+      const { _id, name, date, message } = msg;
+
+      return {
+        _id,
+        name,
+        date,
+        isChecked: true,
+        message,
+      };
+    });
+
+    await User.findByIdAndUpdate(id, { guestBook: newGuestBook });
+
+    res.json({
+      result: "ok",
+    });
+  } catch (err) {
     next(err);
   }
 };
@@ -324,7 +353,7 @@ const changeItemLocation = async (req, res, next) => {
     await User.findByIdAndUpdate(
       id,
       { $set: { "outItemBox.$[item].location": newLocation } },
-      { arrayFilters: [{ "item._id": itemId }] }
+      { arrayFilters: [{ "item._id": itemId }] },
     );
 
     res.json({
@@ -387,6 +416,7 @@ module.exports = {
   getUserInfo,
   getGuestBook,
   addMessage,
+  checkNewGuestBook,
   changeItemStorage,
   changeItemLocation,
   acceptFriendRequest,
