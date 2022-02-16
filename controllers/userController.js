@@ -1,5 +1,6 @@
 const createError = require("http-errors");
 const User = require("../models/User");
+const { LOCATION } = require("../constants");
 
 const getFriendList = async (req, res, next) => {
   const { id } = req.params;
@@ -78,6 +79,7 @@ const addPendingFriendList = async (req, res, next) => {
       result: "ok",
     });
   } catch (err) {
+    console.error(err);
     next(err);
   }
 };
@@ -140,7 +142,7 @@ const addInItem = async (req, res, next) => {
         inItemBox: {
           purchasedBy: "me",
           name,
-          location: [0, 0],
+          location: LOCATION.STATIC_LOCATION,
         },
       },
     });
@@ -185,7 +187,7 @@ const addPresentItem = async (req, res, next) => {
         presentBox: {
           purchasedBy: user.email,
           name,
-          location: [0, 0],
+          location: LOCATION.STATIC_LOCATION,
         },
       },
     });
@@ -320,7 +322,7 @@ const changeItemStorage = async (req, res, next) => {
 
     user[from].forEach((item) => {
       if (item._id.toString() === itemId) {
-        item.location = [100, 100];
+        item.location = LOCATION.STATIC_LOCATION;
         targetItem.push(item);
       } else {
         restItems.push(item);
