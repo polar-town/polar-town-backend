@@ -284,9 +284,8 @@ const addMessage = async (req, res, next) => {
 };
 
 const checkNewGuestBook = async (req, res, next) => {
-  console.log("방명록 확인 했슈");
   const { id } = req.params;
-  console.log(id);
+
   try {
     const user = await User.findById(id);
     const newGuestBook = user.guestBook.map((msg) => {
