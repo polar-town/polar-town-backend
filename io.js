@@ -78,7 +78,6 @@ class Socket {
       });
 
       socket.on(EVENTS.SEND_MESSAGE, async (data) => {
-        console.log("채팅 발생!!!", data);
         const { townId, message } = data;
         const updatedMessageList = await this.TOWN_CHANNEL[townId].addGuestbook(
           townId,
