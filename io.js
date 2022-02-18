@@ -59,7 +59,7 @@ class Socket {
 
       socket.on(EVENTS.LEFT, (data) => {
         const { prevTownId, user, type } = data;
-        const visitors = this.TOWN_CHANNEL[prevTownId].removeVisitor(user);
+        const visitors = this.TOWN_CHANNEL[prevTownId]?.removeVisitor(user);
 
         this.io.to(prevTownId).emit(EVENTS.LEFT, {
           visitors,
@@ -79,10 +79,9 @@ class Socket {
 
       socket.on(EVENTS.SEND_MESSAGE, async (data) => {
         const { townId, message } = data;
-        const updatedMessageList = await this.TOWN_CHANNEL[townId].addGuestbook(
-          townId,
-          message,
-        );
+        const updatedMessageList = await this.TOWN_CHANNEL[
+          townId
+        ]?.addGuestbook(townId, message);
 
         this.io.to(townId).emit(EVENTS.GET_MESSAGES, updatedMessageList);
       });

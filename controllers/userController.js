@@ -289,7 +289,7 @@ const checkNewGuestBook = async (req, res, next) => {
   try {
     const user = await User.findById(id);
     const newGuestBook = user.guestBook.map((msg) => {
-      const { _id, name, date, message } = msg;
+      const { _id, name, date, message, photo } = msg;
 
       return {
         _id,
@@ -297,6 +297,7 @@ const checkNewGuestBook = async (req, res, next) => {
         date,
         isChecked: true,
         message,
+        photo,
       };
     });
 
