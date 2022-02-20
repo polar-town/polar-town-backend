@@ -41,10 +41,6 @@ const itemSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
-  refreshToken: {
-    type: String,
-    default: null,
-  },
   name: {
     type: String,
   },
