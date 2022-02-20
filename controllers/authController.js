@@ -49,8 +49,6 @@ const handleRefreshToken = async (req, res, next) => {
       refreshToken,
       process.env.ACCESS_TOKEN_SECRET,
       async (error, decoded) => {
-        console.log("error", error?.name);
-        console.log("decoded", decoded);
         if (error?.name === "TokenExpiredError") {
           return next(createError(401, "Unauthorized"));
         }
