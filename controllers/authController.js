@@ -30,64 +30,35 @@ const handleLogin = async (req, res, next) => {
       { expiresIn: Number(process.env.REFRESH_TOKEN_MAX_AGE) }
     );
 
-    await user.updateOne({ refreshToken, photo });
-
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
-    });
+    await user.updateOne({ photo });
 
     res.json({
-      result: { accessToken, user },
+      result: { accessToken, refreshToken, user },
     });
   } catch (error) {
     console.error(error);
     next(error);
   }
-};
-
-const handleLogout = async (req, res, next) => {
-  const { email } = req.body;
-
-  try {
-    await User.findOneAndUpdate({ email }, { $set: { refreshToken: null } });
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-
-  const cookies = req.cookies;
-  const refreshToken = cookies.jwt;
-
-  if (!refreshToken) return res.json({ result: "ok" });
-
-  res.clearCookie("jwt", {
-    httpOnly: true,
-    sameSite: "None",
-    secure: true,
-  });
-
-  res.json({ result: "ok" });
 };
 
 const handleRefreshToken = async (req, res, next) => {
-  const cookies = req.cookies;
-  const refreshToken = cookies.jwt;
-
-  if (!refreshToken) return next(createError(401, "Unauthorized"));
+  const { refreshToken } = req.body;
 
   try {
-    const user = await User.findOne({ refreshToken });
-    if (!user) return next(createError(403, "Forbidden"));
-
     jwt.verify(
       refreshToken,
       process.env.ACCESS_TOKEN_SECRET,
-      (error, decoded) => {
-        if (error || decoded.email !== user.email)
-          return next(createError(403, "Forbidden"));
+      async (error, decoded) => {
+        if (error?.name === "TokenExpiredError") {
+          return next(createError(401, "Unauthorized"));
+        }
+
+        if (!decoded) return next(createError(403, "Forbidden"));
+
+        const user = await User.findOne({ email: decoded.email });
+
+        if (error || !user) return next(createError(403, "Forbidden"));
+
         const accessToken = jwt.sign(
           { email: decoded.email },
           process.env.ACCESS_TOKEN_SECRET,
@@ -107,6 +78,5 @@ const handleRefreshToken = async (req, res, next) => {
 
 module.exports = {
   handleLogin,
-  handleLogout,
   handleRefreshToken,
 };

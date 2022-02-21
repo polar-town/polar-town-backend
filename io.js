@@ -40,7 +40,7 @@ class Socket {
           user,
         });
 
-        socket.on(EVENTS.DISCONNECT, (data) => {
+        socket.on(EVENTS.DISCONNECT, () => {
           const visitors = this.TOWN_CHANNEL[townId].removeVisitor(user);
 
           this.io.to(townId).emit(EVENTS.LEFT, { visitors, user });
@@ -117,25 +117,7 @@ function getSocketIO() {
   return socket.io;
 }
 
-function getOnlineUser() {
-  if (!socket) {
-    throw new Error("Please call init first");
-  }
-
-  return socket.ONLINE_USER;
-}
-
-function getTownData(townId) {
-  if (!socket) {
-    throw new Error("Please call init first");
-  }
-
-  return socket.TOWN_CHANNEL[townId];
-}
-
 module.exports = {
   initSocket,
   getSocketIO,
-  getOnlineUser,
-  getTownData,
 };

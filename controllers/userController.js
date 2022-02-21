@@ -72,7 +72,7 @@ const addPendingFriendList = async (req, res, next) => {
             isChecked: false,
           },
         },
-      },
+      }
     ).setOptions({ runValidators: true });
 
     res.status(201).json({
@@ -256,25 +256,26 @@ const addMessage = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: userEmail }).exec();
     const { name, photo } = user;
+    const newMessage = {
+      name,
+      message,
+      date: isoDateTime,
+      photo,
+    };
 
     await User.findByIdAndUpdate(
       id,
       {
         $push: {
-          guestBook: { name, message, date: isoDateTime, photo },
+          guestBook: newMessage,
         },
       },
-      { new: true },
+      { new: true }
     );
 
     res.json({
       result: {
-        newMessage: {
-          name,
-          message,
-          date: isoDateTime,
-          photo,
-        },
+        newMessage,
       },
     });
   } catch (err) {
@@ -355,7 +356,7 @@ const changeItemLocation = async (req, res, next) => {
     await User.findByIdAndUpdate(
       id,
       { $set: { "outItemBox.$[item].location": newLocation } },
-      { arrayFilters: [{ "item._id": itemId }] },
+      { arrayFilters: [{ "item._id": itemId }] }
     );
 
     res.json({

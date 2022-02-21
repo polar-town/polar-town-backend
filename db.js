@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 
 module.exports = function () {
-  mongoose.connect(process.env.DB_URL);
+  mongoose.connect(
+    process.env.NODE_ENV === "test"
+      ? process.env.DB_URL_TEST
+      : process.env.DB_URL
+  );
 
   const db = mongoose.connection;
 
