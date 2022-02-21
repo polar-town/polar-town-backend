@@ -263,8 +263,6 @@ const addMessage = async (req, res, next) => {
       photo,
     };
 
-    console.log(newMessage);
-
     await User.findByIdAndUpdate(
       id,
       {
